@@ -1,0 +1,32 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{ message1 }}</h2>
+
+    <ul>
+        {% for item in iterable %}
+
+            {%  with  listing=item.listing %}    
+                <li> 
+                    {% with image_path='auctions/images/'|add:listing.filename  %} 
+                    
+                      <a href="{% url  'listing_page'  listing.id  image_path  %}"> 
+
+                            <p>Title:&nbsp {{ listing.title }}  </p>
+                            <p>Description:&nbsp {{ listing.description }}</p>
+                            <p>Current price:&nbsp {{ listing.current_price }}</p>
+                        
+                            {%  if image_path|make_list|slice:"-7:"|join:'' != 'no_file' %}
+                                {% load static %} <img src="{% static image_path  %}" width="15%" >
+                            {% endif  %}
+                        </a>
+                    {%  endwith %}
+            
+                </li>
+            {% endwith %}
+            {%  empty %} <p>{{ message2 }}</p>
+
+            
+        {% endfor %}
+    </ul>
+{% endblock %}

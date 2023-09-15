@@ -1,0 +1,114 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if user.is_authenticated  and  listing.status != 'a'  and listing.current_bidder|make_list == user.username|make_list %}
+        <div class="center" id="win"><h3>Congratulations! You are the winner!</h3></div>
+    {% endif %} 
+
+    <div class= 'row'>
+
+        <!-- if there is a real image on disk to be displayed-->
+        {%  if name_to_save != ' ' %} 
+            <div class="col">  
+                <div class="center">
+                    {% load static %} 
+                    <img src="{% static  name_to_save   %}" width="300px" alt="Invalid image file"/>
+                    
+                    <!-- if user logged in is not the same that the listing owner --> 
+                    {% if user.is_authenticated  and user.username|make_list != listing.user|make_list %}              
+                        <form action="{% url 'watchlist'  'add_to_watchlist' %}" method="post">    
+                            {% csrf_token %}
+                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                            <br><input type="submit"  value="Add to Watchlist">    
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="col">
+            
+            <div class="center">
+                <h4>{{ listing.title}} </h4>
+                <h5> Current price:&nbsp {{ listing.current_price }}.00$</h5>
+            
+                {% if listing.description  %}
+                    <!-- Specifies description overflow frame for long description-->
+                    {%  if long_description %}
+                        <div class="des">
+                            {{ listing.description }}
+                        </div>
+                    {% else %}
+                        <div class="left">{{ listing.description }}</div><br>
+                    {% endif %}
+
+                {% endif %}
+               
+                {% if listing.image_url %}
+                    <a href="{{ listing.image_url }}">additional info is here</a><br>
+                {% endif %}
+                <p class="left">Listing hosted by: &nbsp <strong>{{ listing.user }}</strong> &nbsp at &nbsp {{ listing.datetime }} </p>
+                <p>Category:&nbsp {{ listing.category  }}  </p>
+
+
+                {% if user.is_authenticated %}
+                    <!-- if user logged in is the same that the listing owner-->
+                    {%  if user.username|make_list == listing.user|make_list %}
+                        {%  if listing.status == 'a'  %}                        
+                            <form action = '{% url "my_listings"  "close" %}'  method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit"  value="Close auction">
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <!-- if there is no real image on disk to be displayed-->
+                        {%  if name_to_save == ' ' %}
+                            <form action="{% url 'watchlist'  'add_to_watchlist' %}" method="post"  >    
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit"  value="Add to Watchlist">    
+                            </form>
+                        {% endif %} 
+                        <span> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp </span>
+                        {%  if listing.status == 'a' %}                        
+                            <form action="{% url 'add_bid' listing.id  %}" method='post'  >    
+                                {% csrf_token %}
+                                {{bid_form}}
+                                <input type="submit" value="Place bid">
+                            </form>
+                            <h6> {{ bid_count }} bids so far </h6>
+                            <div class="warning_message"><h5>{{ message }}</h5></div>           
+                        {% endif %}          
+                    {% endif %}
+                {% endif %} 
+            </div>
+        </div>
+        <div class="col">
+
+            {% if user.is_authenticated %}
+                <form action="{% url 'listing_page' listing.id    name_to_save   ' ' %}" method='post'>
+                    {% csrf_token %}
+                    <div class="center">
+                        {{comment_form }}<br>
+                        <input type="submit" value="Submit comment" >
+                    </div>
+                </form>
+
+            {% endif %}
+
+            <div class="comm">
+                <ul>
+                    {% for comment in comments %}
+                        <li>
+                            <p> <strong>{{ comment.user }}</strong>&nbsp at &nbsp<i>{{ comment.datetime}}</i>:
+                            {{ comment.content }}</p>
+                        </li>
+
+                    {% endfor %}
+                </ul>    
+            </div>
+        </div>
+    </div>
+{% endblock %}

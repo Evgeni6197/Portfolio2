@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class = 'create_main'>
+        <form  action="{% url 'create_listing' %}" method="post"  enctype="multipart/form-data">
+            {% csrf_token %}  
+            <div class="row">    
+                <div class="col"> 
+                    <div class="center">
+                        <p> Title <span class="ast"> * </span>
+                            <!-- inserts 21 whitespaces -->
+                            {% for _ in " "|center:21 %} &nbsp {% endfor %} {{ form.title }} </p>   
+                        <p>Start bid $ <span class="ast"> * </span>
+                            {% for _ in " "|center:16 %} &nbsp {% endfor %} {{ form.starting_bid }} </p>                           
+                        <p> You can specify URL for image or any other additional info </p>
+                        <p> {{ form.image_url }} </p>                
+                        <p> Upload image file {% for _ in " "|center:3 %} &nbsp {% endfor %}  {{ form.file }} </p>
+                        <p>Category (optional) {% for _ in " "|center:11 %} &nbsp {% endfor %} {{ form.category }} </p>                               
+                    </div>  
+                </div>  
+                <div class="col">  
+                    <div class="center">  
+                        {{ form.description }}
+                    </div> 
+                </div>
+            </div>
+            <div  class='input'>
+                <input type="submit" value="create new listing"  style="width: 40%;"> 
+            </div>
+        </form>
+        <div class="warning_message">
+            {% if message %}
+                <h4> {{ message }} </h4>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

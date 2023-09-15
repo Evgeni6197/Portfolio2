@@ -1,0 +1,99 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{ message1 }}</h2>
+    <div  class="main_container" >    
+        {% for listing in listings %} 
+            {% with image_path='auctions/images/'|add:listing.filename  %}
+                <div class="listing_item" >
+                    <div class="row">
+                        <!-- extracts last 7 characters from listing.filename -->
+                        <!-- case when there is a real image file on disk to be displayed-->
+                        {%  if image_path|make_list|slice:"-7:"|join:'' != 'no_file' %}
+                            <div class="col">
+                                <a href="{% url  'listing_page'  listing.id  image_path  ' '  %}">     
+                                    {% load static %} <img src="{% static image_path  %}" width="300px" >    
+                                </a> 
+                            </div>
+                        {% endif  %}
+                        <div class="col">
+                            <a href="{% url  'listing_page'  listing.id  image_path  ' '  %}">
+                                <p>Title:&nbsp {{ listing.title }}  </p>
+                                <p>Current price:&nbsp {{ listing.current_price }}.00$</p>
+                                <p>Hosted at:&nbsp{{ listing.datetime }} </p>
+                                {% if flag == 'my_listings' %} 
+                                    {% if listing.status == 'a' %}
+                                        <p>Current status ACTIVE</p>
+                                    {% else %}
+                                        <p>Current status NON-ACTIVE</p>
+                                    {% endif %}
+                                {% endif %}
+                            </a> 
+                            {% if listing.image_url %}
+                                <a href="{{ listing.image_url }}" class="link" >Additional information here</a>
+                                {% if flag  != 'index' %}
+                                    <br><br>
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% if flag == 'watchlist' %}
+                                <form action = '{% url "watchlist"  "remove" %}'  method="post">    
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="submit"  value="Remove listing from watchlist">
+                                </form>
+                            {% endif %}  
+
+                            {% if flag == 'my_listings' %} 
+                                {%  if listing.status == 'a'  %}
+                                <form action = '{% url "my_listings"  "close" %}'  method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="submit"  value="Close auction">
+                                </form>
+                                {% endif %} 
+
+                                <form action = '{% url "my_listings"  "delete" %}'  method="post"  style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="submit"  value="Delete from database">
+                                </form>  
+                            {% endif %} 
+
+                        </div>
+                        
+                        <div class="col">
+                            <!-- flag == watchlist or index-->
+                            {% if flag != 'my_listings'  and  listing.description %}
+                                <a href="{% url  'listing_page'  listing.id  image_path  ' '  %}">
+                                    <p class='des'>Description:&nbsp {{ listing.description }}</p>
+                                </a>
+                            {% endif %}  
+
+                            {% if flag == 'my_listings' %}                                                                                    
+                                <h5>Bids for listing</h5>
+                                <div class="bids">  
+                                    {% for item in bids_for_my_listings %}
+                                        {% if item.0 == listing.id  %}
+                                            <ul>
+                                                {% for bid in item.1 %}
+                                                    <li>
+                                                        {{ bid.amount }}.00$   placed at {{ bid.datetime }} by <strong>{{ bid.user }}</strong>  
+                                                    </li>
+                                                {% empty %}
+                                                    <p> No bids so far </p>                                    
+                                                {% endfor %}                                                
+                                            </ul>  
+                                        {% endif %}                        
+                                    {% endfor %}                                    
+                                </div>                                                 
+                            {% endif %}         
+                        </div> 
+                    </div>
+                </div><br>
+            {% endwith %}
+        {%  empty %} 
+            <p>{{ message2 }}</p>
+        {% endfor %}    
+    </div>
+{% endblock %}
