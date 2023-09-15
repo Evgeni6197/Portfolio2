@@ -17,13 +17,13 @@
    python manage.py runserver
    ```
 ### 3. Content
-    - User registration
-    - Posting listings and uploading pictures
-    - Making bids on listings
-    - Adding comments
-    - Placing listings in the watchlist
-    - Querying listings by category
-    - *My Listings*  page 
-        - Closing auctions
-        - Deleting listings
-        - Inspecting bids
+   - User registration
+   - Posting listings and uploading pictures
+   - Making bids on listings
+   - Adding comments
+   - Placing listings in the watchlist
+   - Querying listings by category
+   - *My Listings*  page 
+       - Closing auctions
+       - Deleting listings
+       - Inspecting bids
